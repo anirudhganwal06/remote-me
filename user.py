@@ -1,12 +1,11 @@
-import os
-os.environ['DISPLAY'] = ":0"
-import pickle
+import zlib
 import socket
-from PIL import Image
 import cv2
-import pyautogui
+import mss
 import time
 import numpy as np
+import os
+os.environ['DISPLAY'] = ":0"
 
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -17,32 +16,34 @@ data, controllerAddress = sock.recvfrom(1024)
 print(data.decode())
 
 firstTime = True
-bufferSize = 15000
-while True:
-    frame = np.array(pyautogui.screenshot(region=(0, 0, 200, 400)))
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    frameBytes = pickle.dumps(frame)
-    print(frameBytes.__sizeof__())
-    if firstTime:
-        firstTime = False
-        size = frameBytes.__sizeof__()
-        sock.sendto(str(size).encode(), controllerAddress)
+bufferSize = 65000
+with mss.mss() as sct:
+    width = 200
+    height = 100
+    monitor = {"top": 0, "left": 0, "width": width, "height": height}
 
-    while frameBytes.__sizeof__() > 0:
-        # print(frameBytes.__sizeof__())
-        if frameBytes.__sizeof__() < bufferSize:
-            sock.sendto(frameBytes, controllerAddress)
+    while True:
+        frame = np.array(sct.grab(monitor))
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
+
+        frameBytes = frame.tobytes()
+        if firstTime:
+            firstTime = False
+            frameShape = np.array(frame.shape).tobytes()
+            sock.sendto(frameShape, controllerAddress)
+            sock.sendto(str(len(frameBytes)).encode(), controllerAddress)
+
+        while len(frameBytes) > 0:
+            if len(frameBytes) < bufferSize:
+                sock.sendto(frameBytes, controllerAddress)
+                break
+            else:
+                sock.sendto(frameBytes[:bufferSize], controllerAddress)
+                frameBytes = frameBytes[bufferSize:]
+        cv2.imshow("User Screen", frame)
+        if cv2.waitKey(50) == ord('q'):
             break
-        else:
-            # print(frameBytes.__sizeof__())
-            sock.sendto(frameBytes[:bufferSize], controllerAddress)
-            frameBytes = frameBytes[bufferSize:]
+        # time.sleep(0.05)
 
-    time.sleep(0.05)
-    break
-
-#     # cv2.imshow("Screen Recorder", frame)
-#     # if cv2.waitKey(50) == ord('q'):
-#     #     break
 
 # cv2.destroyAllWindows()

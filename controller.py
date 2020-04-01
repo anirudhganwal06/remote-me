@@ -1,36 +1,37 @@
-import numpy as np
-import socket
+import zlib
 import cv2
-import pickle
+import socket
+import numpy as np
+import os
+os.environ['DISPLAY'] = ':0'
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 sock.connect(("127.0.0.1", 3000))
 
-sock.send("Controller [{}] is connected to the user!".format(sock.getsockname()).encode())
+sock.send("Controller [{}] is connected to the user!".format(
+    sock.getsockname()).encode())
 
-# out = cv2.VideoWriter(
-#     "recorder.mkv", cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 20, (1920, 1080))
+frameShape, x = sock.recvfrom(1024)
+frameShape = np.frombuffer(frameShape, dtype=int)
 
 size, x = sock.recvfrom(1024)
 size = int(size.decode())
-print(size)
 
-index = 1
 data = b""
+
 while True:
-  temp, userAddress = sock.recvfrom(65507)
-  # print(data.__sizeof__())
-  if (temp.__sizeof__() == 0):
-    break
-  data += temp
-  if data.__sizeof__() < size:
-    continue
-  else:
-    frame = pickle.loads(data[:size])
-    cv2.imwrite("ss{}.jpg".format(index), frame)
-    index += 1
-    data = data[size:]
-    # break
-    
-  # out.write(frame)
+    temp, userAddress = sock.recvfrom(65000)
+    data += temp
+    if len(data) >= size:
+        frameBytes = data[:size]
+        frame = np.frombuffer(frameBytes, dtype="uint8").reshape(frameShape)
+        data = data[size:]
+        cv2.imshow("Controller screen", frame)
+        if cv2.waitKey(50) == ord('q'):
+            break
+    elif len(temp) == 0:
+        break
+
+
+cv2.destroyAllWindows()
