@@ -11,7 +11,6 @@ cd remote-me
 ```
 
 - Following libraries should be already installed on your machine
-  - socket
   - cv2
   - mss
   - numpy
