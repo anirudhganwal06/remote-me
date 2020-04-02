@@ -11,9 +11,9 @@ cd remote-me
 ```
 
 - Following libraries should be already installed on your machine
-  - cv2
-  - mss
-  - numpy
+  - cv2 `pip install opencv-python`
+  - mss `pip install mss`
+  - numpy `pip install numpy`
 
 - Now run `python user.py` to run the server(user) whose screen needs to be shared.
 - After running the server, run `python controller.py` for connecting it to the user server already running at port 3000.
