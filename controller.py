@@ -1,4 +1,3 @@
-import zlib
 import cv2
 import socket
 import numpy as np
