@@ -1,48 +1,36 @@
+import struct
+import pickle
 import socket
 import cv2
 import mss
-import time
 import numpy as np
 import os
 os.environ['DISPLAY'] = ":0"
 
-
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind(("127.0.0.1", 3000))
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.bind(("127.0.0.1", 3000))
 print("User hosting screen at port {}".format(3000))
+s.listen()
 
-data, controllerAddress = sock.recvfrom(1024)
+sock, controllerAddress = s.accept()
+
+data = sock.recv(1024)
 print(data.decode())
 
 firstTime = True
 bufferSize = 65000
 with mss.mss() as sct:
-    width = 200
-    height = 100
+    width = 1920
+    height = 1080
     monitor = {"top": 0, "left": 0, "width": width, "height": height}
-
     while True:
         frame = np.array(sct.grab(monitor))
         frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
-
-        frameBytes = frame.tobytes()
-        if firstTime:
-            firstTime = False
-            frameShape = np.array(frame.shape).tobytes()
-            sock.sendto(frameShape, controllerAddress)
-            sock.sendto(str(len(frameBytes)).encode(), controllerAddress)
-
-        while len(frameBytes) > 0:
-            if len(frameBytes) < bufferSize:
-                sock.sendto(frameBytes, controllerAddress)
-                break
-            else:
-                sock.sendto(frameBytes[:bufferSize], controllerAddress)
-                frameBytes = frameBytes[bufferSize:]
+        frameBytes = pickle.dumps(frame)
+        sock.sendall(struct.pack("L", len(frameBytes)) + frameBytes)
         cv2.imshow("User Screen", frame)
         if cv2.waitKey(50) == ord('q'):
             break
-        # time.sleep(0.05)
 
-
-# cv2.destroyAllWindows()
+cv2.destroyAllWindows()

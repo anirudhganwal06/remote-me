@@ -1,4 +1,4 @@
-# Screen Sharing app using socket with User Datagram Protocol (UDP)
+# Screen Sharing app using socket with Transfer Control Protocol (TCP)
 
 This repository provides a simple python implementation of sharing screen of you computer.
 

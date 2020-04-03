@@ -2,35 +2,32 @@ import cv2
 import socket
 import numpy as np
 import os
+import struct
+import pickle
 os.environ['DISPLAY'] = ':0'
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect(("127.0.0.1", 3000))
 
 sock.send("Controller [{}] is connected to the user!".format(
     sock.getsockname()).encode())
 
-frameShape, x = sock.recvfrom(1024)
-frameShape = np.frombuffer(frameShape, dtype=int)
-
-size, x = sock.recvfrom(1024)
-size = int(size.decode())
-
 data = b""
+payload_size = struct.calcsize("L")
+print(payload_size)
 
 while True:
-    temp, userAddress = sock.recvfrom(65000)
-    data += temp
-    if len(data) >= size:
-        frameBytes = data[:size]
-        frame = np.frombuffer(frameBytes, dtype="uint8").reshape(frameShape)
-        data = data[size:]
-        cv2.imshow("Controller screen", frame)
-        if cv2.waitKey(50) == ord('q'):
-            break
-    elif len(temp) == 0:
+    data += sock.recv(payload_size)
+    packedMessageSize = data[:payload_size]
+    data = data[payload_size:]
+    messageSize = struct.unpack("L", packedMessageSize)[0]
+    while len(data) < messageSize:
+        data += sock.recv(65000)
+    frameData = data[:messageSize]
+    data = data[messageSize:]
+    frame = pickle.loads(frameData)
+    cv2.imshow("Controller screen", frame)
+    if cv2.waitKey(1) == ord('q'):
         break
-
 
 cv2.destroyAllWindows()
