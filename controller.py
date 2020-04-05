@@ -3,8 +3,11 @@ import socket
 import numpy as np
 import struct
 import pickle
+from PyQt5.QtGui import QImage, QPixmap
+from PyQt5 import QtCore
 
-def startController():
+
+def startController(self):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(("127.0.0.1", 3000))
 
@@ -25,9 +28,12 @@ def startController():
         frameData = data[:messageSize]
         data = data[messageSize:]
         frame = pickle.loads(frameData)
-        cv2.imshow("Controller screen", frame)
-        if cv2.waitKey(1) == ord('q'):
-            break
+        height, width, channel = frame.shape
+        bytesPerLine = 3 * width
+        qImg = QImage(frame.data, width, height,
+                      bytesPerLine, QImage.Format_RGB888)
+        qImg = qImg.scaled(self.widget_2.size(), QtCore.Qt.KeepAspectRatio)
+        self.label_2.setPixmap(QPixmap(qImg))
 
     cv2.destroyAllWindows()
 

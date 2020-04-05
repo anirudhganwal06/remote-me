@@ -14,7 +14,6 @@ cd remote-me
   - cv2 `pip install opencv-python`
   - mss `pip install mss`
   - numpy `pip install numpy`
+  - PyQt5 `pip install PyQt5`
 
-- Now run `python user.py` to run the server(user) whose screen needs to be shared.
-- After running the server, run `python controller.py` for connecting it to the user server already running at port 3000.
-- The connection is set and user should start sharing its screen in a _Controller Screen_ window.
+- Now run `python main.py` in the terminal and a GUI application will open up! 
