@@ -3,11 +3,12 @@ import socket
 import numpy as np
 import struct
 import pickle
+import pyautogui
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5 import QtCore
 
 
-def startController(self):
+def startControllerDisplay(self):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect(("127.0.0.1", 3000))
 
@@ -35,7 +36,28 @@ def startController(self):
         qImg = qImg.scaled(self.widget_2.size(), QtCore.Qt.KeepAspectRatio)
         self.label_2.setPixmap(QPixmap(qImg))
 
-    cv2.destroyAllWindows()
+def startControllerMouseControl(self):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(("127.0.0.1", 3001))
+
+    sock.send("Controller [{}] is connected to the user!".format(
+        sock.getsockname()).encode())
+
+    data = b""
+    payload_size = struct.calcsize("L")
+
+    # Configuring pyautoui
+    pyautogui.FAILSAFE = False
+
+    while True:
+        while len(data) < payload_size * 2:
+            data += sock.recv(2 * payload_size)
+        mousex = struct.unpack("L", data[:payload_size])[0]
+        mousey = struct.unpack("L", data[payload_size:payload_size * 2])[0]
+        data = data[payload_size * 2:]
+        print(mousex, mousey)
+        pyautogui.moveTo(mousex, mousey)
+        # pyautogui.moveTo(mousex, mousey, duration=0.05)
 
 if __name__ == "__main__":
     startController()

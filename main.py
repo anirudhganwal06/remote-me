@@ -7,8 +7,8 @@ import cv2
 import time
 import threading
 from PyQt5 import QtCore, QtGui, QtWidgets
-from controller import startController
-from user import startUser
+from controller import *
+from user import *
 
 
 class Ui_MainWindow(object):
@@ -143,8 +143,9 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
 
-        self.smsBtn_2.clicked.connect(self.goToUserScreen)
-        self.wosBtn_2.clicked.connect(self.goToControllerScreen)
+        self.smsBtn_2.clicked.connect(lambda: self.startUserSignal(("display", "mouse")))
+        self.wosBtn_2.clicked.connect(
+            lambda: self.startControllerSignal(("display", "mouse")))
 
         self.retranslateUi(MainWindow)
         self.stackedWidget.setCurrentIndex(0)
@@ -162,16 +163,27 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate(
             "MainWindow", "Connecting to the user ..."))
 
-    def goToUserScreen(self):
+    def startUserSignal(self, sharing):
+        print("hello")
+        print(sharing)
         self.stackedWidget.setCurrentIndex(1)
-        startUserThread = threading.Thread(target=startUser, args=(self, ))
-        startUserThread.start()
 
-    def goToControllerScreen(self):
+        if "display" in sharing:
+            thread = threading.Thread(target=startUserDisplay, args=(self, ))
+            thread.start()
+        if "mouse" in sharing:
+            thread = threading.Thread(target=startUserMouseControl, args=(self, ))
+            thread.start()
+
+    def startControllerSignal(self, sharing):
         self.stackedWidget.setCurrentIndex(2)
-        startControllerThread = threading.Thread(
-            target=startController, args=(self, ))
-        startControllerThread.start()
+
+        if "display" in sharing:
+            thread = threading.Thread(target=startControllerDisplay, args=(self, ))
+            thread.start()
+        if "mouse" in sharing:
+            thread = threading.Thread(target=startControllerMouseControl, args=(self, ))
+            thread.start()
 
 
 if __name__ == "__main__":

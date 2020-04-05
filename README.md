@@ -1,6 +1,6 @@
 # Screen Sharing app using socket with Transfer Control Protocol (TCP)
 
-This repository provides a simple python implementation of sharing screen of you computer.
+This repository provides a simple python(Python3) implementation of sharing screen of you computer.
 
 **SETUP**
 
@@ -15,5 +15,6 @@ cd remote-me
   - mss `pip install mss`
   - numpy `pip install numpy`
   - PyQt5 `pip install PyQt5`
+  - pyautogui `pip install pyautogui`
 
 - Now run `python main.py` in the terminal and a GUI application will open up! 
