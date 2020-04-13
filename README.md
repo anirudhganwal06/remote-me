@@ -4,11 +4,21 @@ This repository provides a simple python(Python3) implementation of sharing scre
 
 **SETUP**
 
-- Clone this repository to your local machine using
+- Clone this repository
 
 ```
 git clone https://github.com/anirudhganwal06/remote-me.git
 cd remote-me
+```
+
+- Install all requirements of the application
+
+```
 pip install -r requirements.txt
+```
+
+- Run the application
+
+```
 python ./remote-me/main.py
 ```
