@@ -4,6 +4,7 @@ import numpy as np
 import struct
 import pickle
 import pyautogui
+import time
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5 import QtCore
 
@@ -18,6 +19,14 @@ def startControllerDisplay(self):
     data = b""
     payload_size = struct.calcsize("L")
     print(payload_size)
+
+    # Recieving user's screen resolution
+    while len(data) < payload_size * 2:
+        data += sock.recv(2 * payload_size)
+    userScreenWidth = struct.unpack("L", data[:payload_size])[0]
+    userScreenHeight = struct.unpack("L", data[payload_size:payload_size * 2])[0]
+    data = data[payload_size * 2:]
+    print("User's screen resolution: {}, {}".format(userScreenWidth, userScreenHeight))
 
     while True:
         data += sock.recv(payload_size)
@@ -46,18 +55,22 @@ def startControllerMouseControl(self):
     data = b""
     payload_size = struct.calcsize("L")
 
-    # Configuring pyautoui
-    pyautogui.FAILSAFE = False
+    # Recieving user's screen resolution
+    while len(data) < payload_size * 2:
+        data += sock.recv(2 * payload_size)
+    userScreenWidth = struct.unpack("L", data[:payload_size])[0]
+    userScreenHeight = struct.unpack("L", data[payload_size:payload_size * 2])[0]
+    data = data[payload_size * 2:]
+    print("User's screen resolution: {}, {}".format(userScreenWidth, userScreenHeight))
 
     while True:
-        while len(data) < payload_size * 2:
-            data += sock.recv(2 * payload_size)
-        mousex = struct.unpack("L", data[:payload_size])[0]
-        mousey = struct.unpack("L", data[payload_size:payload_size * 2])[0]
-        data = data[payload_size * 2:]
-        print(mousex, mousey)
-        pyautogui.moveTo(mousex, mousey)
-        # pyautogui.moveTo(mousex, mousey, duration=0.05)
+        # print(self.MainWindow.geometry())
+        pyautoguiPoint = pyautogui.position()
+        # if pyautoguiPoint.x >
+        sock.send(struct.pack("L", pyautoguiPoint.x))
+        sock.send(struct.pack("L", pyautoguiPoint.y))
+        time.sleep(0.1)
+
 
 if __name__ == "__main__":
     startController()

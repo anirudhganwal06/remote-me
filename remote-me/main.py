@@ -12,9 +12,16 @@ from user import *
 
 
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
+    def setupUi(self, MainWindow, screenResolution):
+        
+        # Unboxing the screen resolution
+        self.screenWidth, self.screenHeight = screenResolution.width(), screenResolution.height()
+
+        self.MainWindow = MainWindow
+
         MainWindow.setObjectName("MainWindow")
         MainWindow.setGeometry(100, 100, 800, 600)
+
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -193,8 +200,13 @@ class Ui_MainWindow(object):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
+
+    # Getting screen resolution
+    screenResolution = app.desktop().screenGeometry()
+    print(screenResolution)
+
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
+    ui.setupUi(MainWindow, screenResolution)
     MainWindow.show()
     sys.exit(app.exec_())

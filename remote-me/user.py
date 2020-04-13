@@ -22,11 +22,15 @@ def startUserDisplay(self):
     data = sock.recv(1024)
     print(data.decode())
 
+    # sending screen resolution to the controller
+    sock.sendall(struct.pack("L", self.screenWidth))
+    sock.sendall(struct.pack("L", self.screenHeight))
+
     firstTime = True
     bufferSize = 65000
     with mss.mss() as sct:
-        width = 1920
-        height = 1080
+        width = 1000
+        height = 500
         monitor = {"top": 0, "left": 0, "width": width, "height": height}
         while True:
             frame = np.array(sct.grab(monitor))
@@ -51,12 +55,25 @@ def startUserMouseControl(self):
     data = sock.recv(1024)
     print(data.decode())
 
+    # sending screen resolution to the controller
+    sock.sendall(struct.pack("L", self.screenWidth))
+    sock.sendall(struct.pack("L", self.screenHeight))
+
+    # Configuring pyautoui
+    pyautogui.FAILSAFE = False
+
+    data = b""
+    payload_size = struct.calcsize("L")
+
     while True:
-        pyautoguiPoint = pyautogui.position()
-        print(pyautoguiPoint)
-        sock.send(struct.pack("L", pyautoguiPoint.x))
-        sock.send(struct.pack("L", pyautoguiPoint.y))
-        time.sleep(0.1)
+        while len(data) < payload_size * 2:
+            data += sock.recv(2 * payload_size)
+        mousex = struct.unpack("L", data[:payload_size])[0]
+        mousey = struct.unpack("L", data[payload_size:payload_size * 2])[0]
+        data = data[payload_size * 2:]
+        # print(mousex, mousey)
+        # pyautogui.moveTo(mousex, mousey)
+        pyautogui.moveTo(mousex, mousey, duration=0.05)
 
 if __name__ == "__main__":
     startUser()
