@@ -143,7 +143,8 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
 
-        self.smsBtn_2.clicked.connect(lambda: self.startUserSignal(("display", "mouse")))
+        self.smsBtn_2.clicked.connect(
+            lambda: self.startUserSignal(("display", "mouse")))
         self.wosBtn_2.clicked.connect(
             lambda: self.startControllerSignal(("display", "mouse")))
 
@@ -172,17 +173,20 @@ class Ui_MainWindow(object):
             thread = threading.Thread(target=startUserDisplay, args=(self, ))
             thread.start()
         if "mouse" in sharing:
-            thread = threading.Thread(target=startUserMouseControl, args=(self, ))
+            thread = threading.Thread(
+                target=startUserMouseControl, args=(self, ))
             thread.start()
 
     def startControllerSignal(self, sharing):
         self.stackedWidget.setCurrentIndex(2)
 
         if "display" in sharing:
-            thread = threading.Thread(target=startControllerDisplay, args=(self, ))
+            thread = threading.Thread(
+                target=startControllerDisplay, args=(self, ))
             thread.start()
         if "mouse" in sharing:
-            thread = threading.Thread(target=startControllerMouseControl, args=(self, ))
+            thread = threading.Thread(
+                target=startControllerMouseControl, args=(self, ))
             thread.start()
 
 

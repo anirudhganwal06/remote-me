@@ -1,3 +1,5 @@
 demo*
 .vscode
 __pycache__
+*.egg-info
+dist
