@@ -151,9 +151,9 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.smsBtn_2.clicked.connect(
-            lambda: self.startUserSignal(("display", "mouse")))
+            lambda: self.startUserSignal(("display", "-mouse")))
         self.wosBtn_2.clicked.connect(
-            lambda: self.startControllerSignal(("display", "mouse")))
+            lambda: self.startControllerSignal(("display", "-mouse")))
 
         self.retranslateUi(MainWindow)
         self.stackedWidget.setCurrentIndex(0)
